@@ -2,6 +2,8 @@
 
 Kinect SDK 2.0 wrapper for openFrameworks, Windows 10. It's tested with oF 10.1.
 
+(This is fork of original addon at https://github.com/sadmb/ofxKinect2)
+
 Note: It works with single Kinect 2. You you need use multiple devices, please consider ofxKuKinectV2,
 https://github.com/perevalovds/ofxKuKinectV2 
 
