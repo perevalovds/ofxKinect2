@@ -1,17 +1,22 @@
-ofxKinect2
-==========
+# ofxKinect2
 
-Kinect SDK 2.0 wrapper for openFrameworks
+Kinect SDK 2.0 wrapper for openFrameworks, Windows 10. It's tested with oF 10.1.
 
-Download and install Kinect SDK 2.0 from here.  
+Note: It works with single Kinect 2. You you need use multiple devices, please consider ofxKuKinectV2,
+https://github.com/perevalovds/ofxKuKinectV2 
+
+# Installing
+
+1. Download and install Kinect SDK 2.0 from here:  
 https://www.microsoft.com/en-us/download/details.aspx
 
-Usage: You should add Kinect2 include and library manually.
+or download KinectSDK-v2.0_1409-Setup.exe file here:
+https://cloud.mail.ru/public/56Pe/4zvWgXyvh
 
-add to C++ -> General -> Additional Include Directories: $(KINECTSDK20_DIR)inc;  
-add to Linker -> Input -> Additional Dependencies: Kinect20.lib;  
+2. Add to C++ -> General -> Additional Include Directories: $(KINECTSDK20_DIR)inc;  
 
-(for Win32)  
-add to Linker -> General -> Additional Library Directories: $(KINECTSDK20_DIR)Lib\x86;  
-(for x64)  
-add to Linker -> General -> Additional Library Directories: $(KINECTSDK20_DIR)Lib\x64;
+3. Add to Linker -> Input -> Additional Dependencies: Kinect20.lib;  
+
+4. (for Win32): add to Linker -> General -> Additional Library Directories: $(KINECTSDK20_DIR)Lib\x86;  
+
+(for x64): add to Linker -> General -> Additional Library Directories: $(KINECTSDK20_DIR)Lib\x64;

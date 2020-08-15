@@ -490,32 +490,32 @@ public:
 	void setColorFromPixels(const ofPixels* _color_pixels) { color_pixels = _color_pixels; }
 	void setColor(ofxKinect2::ColorStream& _color_stream) { color_pixels = &_color_stream.getPixels(); }
 
-	ofVec3f mapDepthToCameraSpace(int x, int y);
-	ofVec3f mapDepthToCameraSpace(ofVec2f depth_point);
-	vector<ofVec3f> mapDepthToCameraSpace();
-	vector<ofVec3f> mapDepthToCameraSpace(vector<ofVec2f> depth_points);
-	vector<ofVec3f> mapDepthToCameraSpace(ofRectangle depth_area);
+	glm::vec3 mapDepthToCameraSpace(int x, int y);
+	glm::vec3 mapDepthToCameraSpace(ofVec2f depth_point);
+	vector<glm::vec3> mapDepthToCameraSpace();
+	vector<glm::vec3> mapDepthToCameraSpace(vector<ofVec2f> depth_points);
+	vector<glm::vec3> mapDepthToCameraSpace(ofRectangle depth_area);
 
 	ofVec2f mapDepthToColorSpace(int x, int y);
 	ofVec2f mapDepthToColorSpace(ofVec2f depth_point);
 	vector<ofVec2f> mapDepthToColorSpace();
-	vector<ofVec2f> mapDepthToColorSpace(vector<ofVec2f> depth_points);
+	vector<ofVec2f> mapDepthToColorSpace(vector<ofVec2f> &depth_points);
 	vector<ofVec2f> mapDepthToColorSpace(ofRectangle depth_area);
 
 	vector<ofFloatColor> getFloatColorsCoordinatesToDepthFrame();
 	vector<ofColor> getColorsCoordinatesToDepthFrame();
 	ofPixels getColorFrameCoordinatesToDepthFrame();
 
-	vector<ofVec3f> mapColorToCameraSpace();
+	vector<glm::vec3> mapColorToCameraSpace();
 	vector<ofVec2f> mapColorToDepthSpace();
 
 	ofVec2f mapCameraToDepthSpace(float x, float y, float z);
-	ofVec2f mapCameraToDepthSpace(ofVec3f camera_point);
-	vector<ofVec2f> mapCameraToDepthSpace(vector<ofVec3f> camera_points);
+	ofVec2f mapCameraToDepthSpace(glm::vec3 camera_point);
+	vector<ofVec2f> mapCameraToDepthSpace(vector<glm::vec3> camera_points);
 
 	ofVec2f mapCameraToColorSpace(float x, float y, float z);
-	ofVec2f mapCameraToColorSpace(ofVec3f camera_point);
-	vector<ofVec2f> mapCameraToColorSpace(vector<ofVec3f> camera_points);
+	ofVec2f mapCameraToColorSpace(glm::vec3 camera_point);
+	vector<ofVec2f> mapCameraToColorSpace(vector<glm::vec3> camera_points);
 
 	ICoordinateMapper* get() { return p_mapper; }
 	const ICoordinateMapper* get() const { return p_mapper; }
@@ -531,9 +531,9 @@ private:
 	UINT16* depth_values;
 	vector<ofVec2f> camera_to_depth_points;
 	vector<ofVec2f> depth_to_color_points;
-	vector<ofVec3f> depth_to_camera_points;
+	vector<glm::vec3> depth_to_camera_points;
 	vector<ofVec2f> color_to_depth_points;
-	vector<ofVec3f> color_to_camera_points;
+	vector<glm::vec3> color_to_camera_points;
 
 	vector<ofFloatColor> depth_to_float_colors;
 	vector<ofColor> depth_to_colors;

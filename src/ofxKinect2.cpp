@@ -731,6 +731,9 @@ void DepthStream::update()
 
 	if (lock())
 	{
+		ofShortPixels _pix;
+		depthRemapToRange(pix.getFrontBuffer(), _pix, near_value, far_value, is_invert);
+		tex.loadData(_pix);
 		Stream::update();
 		unlock();
 	}
@@ -1686,17 +1689,17 @@ bool Mapper::isReady(bool depth, bool color)
 }
 
 //----------------------------------------------------------
-ofVec3f Mapper::mapDepthToCameraSpace(int x, int y)
+glm::vec3 Mapper::mapDepthToCameraSpace(int x, int y)
 {
 	if (!isReady(true, false))
 	{
-		return ofVec3f();
+		return glm::vec3();
 	}
 	DepthSpacePoint depth_space_point;
 	depth_space_point.X = x;
 	depth_space_point.Y = y;
 	int index = x + y * depth_pixels->getWidth();
-	UINT16 depth = depth_pixels->getData()[index];
+	UINT16 depth = depth_pixels->getPixels()[index];
 	if (depth_to_camera_points.size() == 0)
 	{
 		depth_to_camera_points.resize(depth_pixels->size());
@@ -1706,33 +1709,33 @@ ofVec3f Mapper::mapDepthToCameraSpace(int x, int y)
 }
 
 //----------------------------------------------------------
-ofVec3f Mapper::mapDepthToCameraSpace(ofVec2f depth_point)
+glm::vec3 Mapper::mapDepthToCameraSpace(ofVec2f depth_point)
 {
 	return mapDepthToCameraSpace(depth_point.x, depth_point.y);
 }
 
 //----------------------------------------------------------
-vector<ofVec3f> Mapper::mapDepthToCameraSpace()
+vector<glm::vec3> Mapper::mapDepthToCameraSpace()
 {
 	if (!isReady(true, false))
 	{
-		return vector<ofVec3f>();
+		return vector<glm::vec3>();
 	}
 	UINT depth_size = depth_pixels->size();
 	if (depth_to_camera_points.size() != depth_size)
 	{
 		depth_to_camera_points.resize(depth_size);
 	}
-	p_mapper->MapDepthFrameToCameraSpace(depth_size, depth_pixels->getData(), depth_size, reinterpret_cast<CameraSpacePoint*>(depth_to_camera_points.data()));
+	p_mapper->MapDepthFrameToCameraSpace(depth_size, depth_pixels->getPixels(), depth_size, reinterpret_cast<CameraSpacePoint*>(depth_to_camera_points.data()));
 	return depth_to_camera_points;
 }
 
 //----------------------------------------------------------
-vector<ofVec3f> Mapper::mapDepthToCameraSpace(vector<ofVec2f> depth_points)
+vector<glm::vec3> Mapper::mapDepthToCameraSpace(vector<ofVec2f> depth_points)
 {
 	if (!isReady(true, false))
 	{
-		return vector<ofVec3f>();
+		return vector<glm::vec3>();
 	}
 	UINT depth_size = depth_points.size();
 	if (!depth_space_points)
@@ -1748,7 +1751,7 @@ vector<ofVec3f> Mapper::mapDepthToCameraSpace(vector<ofVec2f> depth_points)
 		depth_space_points[i].X = depth_points[i].x;
 		depth_space_points[i].Y = depth_points[i].y;
 		int index = depth_points[i].x + depth_points[i].y * depth_pixels->getWidth();
-		depth_values[i] = depth_pixels->getData()[index];
+		depth_values[i] = depth_pixels->getPixels()[index];
 	}
 
 	if (depth_to_camera_points.size() != depth_size)
@@ -1760,11 +1763,11 @@ vector<ofVec3f> Mapper::mapDepthToCameraSpace(vector<ofVec2f> depth_points)
 }
 
 //----------------------------------------------------------
-vector<ofVec3f> Mapper::mapDepthToCameraSpace(ofRectangle depth_area)
+vector<glm::vec3> Mapper::mapDepthToCameraSpace(ofRectangle depth_area)
 {
 	if (!isReady(true, false))
 	{
-		return vector<ofVec3f>();
+		return vector<glm::vec3>();
 	}
 	UINT depth_size = depth_area.getWidth() * depth_area.getHeight();
 	if (!depth_space_points)
@@ -1775,7 +1778,7 @@ vector<ofVec3f> Mapper::mapDepthToCameraSpace(ofRectangle depth_area)
 	{
 		depth_values = new UINT16[depth_pixels->size()];
 	}
-	const unsigned short* data = depth_pixels->getData();
+	const unsigned short* data = depth_pixels->getPixels();
 	int width = depth_area.getWidth();
 	int d_width = depth_pixels->getWidth();
 	for (int i = 0; i < depth_size; i++)
@@ -1805,7 +1808,7 @@ ofVec2f Mapper::mapDepthToColorSpace(int x, int y)
 	depth_space_point.X = x;
 	depth_space_point.Y = y;
 	int index = x + y * depth_pixels->getWidth();
-	UINT16 depth = depth_pixels->getData()[index];
+	UINT16 depth = depth_pixels->getPixels()[index];
 	if (depth_to_color_points.size() == 0)
 	{
 		depth_to_color_points.resize(depth_pixels->size());
@@ -1832,12 +1835,12 @@ vector<ofVec2f> Mapper::mapDepthToColorSpace()
 	{
 		depth_to_color_points.resize(depth_size);
 	}
-	p_mapper->MapDepthFrameToColorSpace(depth_size, depth_pixels->getData(), depth_size, reinterpret_cast<ColorSpacePoint*>(depth_to_color_points.data()));
+	p_mapper->MapDepthFrameToColorSpace(depth_size, depth_pixels->getPixels(), depth_size, reinterpret_cast<ColorSpacePoint*>(depth_to_color_points.data()));
 	return depth_to_color_points;
 }
 
 //----------------------------------------------------------
-vector<ofVec2f> Mapper::mapDepthToColorSpace(vector<ofVec2f> depth_points)
+vector<ofVec2f> Mapper::mapDepthToColorSpace(vector<ofVec2f> &depth_points)
 {
 	if (!isReady(true, false))
 	{
@@ -1853,7 +1856,7 @@ vector<ofVec2f> Mapper::mapDepthToColorSpace(vector<ofVec2f> depth_points)
 		depth_values = new UINT16[depth_pixels->size()];
 	}
 	int d_width = depth_pixels->getWidth();
-	const unsigned short* data = depth_pixels->getData();
+	const unsigned short* data = depth_pixels->getPixels();
 	for (int i = 0; i < depth_size; i++)
 	{
 		depth_space_points[i].X = depth_points[i].x;
@@ -1886,7 +1889,7 @@ vector<ofVec2f> Mapper::mapDepthToColorSpace(ofRectangle depth_area)
 	}
 	int width = depth_area.getWidth();
 	int d_width = depth_pixels->getWidth();
-	const unsigned short* data = depth_pixels->getData();
+	const unsigned short* data = depth_pixels->getPixels();
 	for (int i = 0; i < depth_size; i++)
 	{
 		depth_space_points[i].X = i % width;
@@ -1903,11 +1906,11 @@ vector<ofVec2f> Mapper::mapDepthToColorSpace(ofRectangle depth_area)
 }
 
 //----------------------------------------------------------
-vector<ofVec3f> Mapper::mapColorToCameraSpace()
+vector<glm::vec3> Mapper::mapColorToCameraSpace()
 {
 	if (!isReady(true, true))
 	{
-		return vector<ofVec3f>();
+		return vector<glm::vec3>();
 	}
 	int depth_size = depth_pixels->size();
 	int color_size = color_pixels->size();
@@ -1915,7 +1918,7 @@ vector<ofVec3f> Mapper::mapColorToCameraSpace()
 	{
 		color_to_camera_points.resize(color_size);
 	}
-	p_mapper->MapColorFrameToCameraSpace(depth_size, depth_pixels->getData(), color_size, reinterpret_cast<CameraSpacePoint*>(color_to_camera_points.data()));
+	p_mapper->MapColorFrameToCameraSpace(depth_size, depth_pixels->getPixels(), color_size, reinterpret_cast<CameraSpacePoint*>(color_to_camera_points.data()));
 	return color_to_camera_points;
 }
 
@@ -1932,7 +1935,7 @@ vector<ofVec2f> Mapper::mapColorToDepthSpace()
 	{
 		color_to_depth_points.resize(color_size);
 	}
-	p_mapper->MapColorFrameToDepthSpace(depth_size, depth_pixels->getData(), color_size, reinterpret_cast<DepthSpacePoint*>(color_to_depth_points.data()));
+	p_mapper->MapColorFrameToDepthSpace(depth_size, depth_pixels->getPixels(), color_size, reinterpret_cast<DepthSpacePoint*>(color_to_depth_points.data()));
 	return color_to_depth_points;
 }
 
@@ -1956,13 +1959,13 @@ ofVec2f Mapper::mapCameraToDepthSpace(float x, float y, float z)
 }
 
 //----------------------------------------------------------
-ofVec2f Mapper::mapCameraToDepthSpace(ofVec3f camera_point)
+ofVec2f Mapper::mapCameraToDepthSpace(glm::vec3 camera_point)
 {
 	return mapCameraToDepthSpace(camera_point.x, camera_point.y, camera_point.z);
 }
 
 //----------------------------------------------------------
-vector<ofVec2f> Mapper::mapCameraToDepthSpace(vector<ofVec3f> camera_points)
+vector<ofVec2f> Mapper::mapCameraToDepthSpace(vector<glm::vec3> camera_points)
 {
 	if (!isReady(true, false))
 	{
@@ -2008,13 +2011,13 @@ ofVec2f Mapper::mapCameraToColorSpace(float x, float y, float z)
 }
 
 //----------------------------------------------------------
-ofVec2f Mapper::mapCameraToColorSpace(ofVec3f camera_point)
+ofVec2f Mapper::mapCameraToColorSpace(glm::vec3 camera_point)
 {
 	return mapCameraToColorSpace(camera_point.x, camera_point.y, camera_point.z);
 }
 
 //----------------------------------------------------------
-vector<ofVec2f> Mapper::mapCameraToColorSpace(vector<ofVec3f> camera_points)
+vector<ofVec2f> Mapper::mapCameraToColorSpace(vector<glm::vec3> camera_points)
 {
 	if (!isReady(true, false))
 	{
@@ -2049,7 +2052,7 @@ vector<ofFloatColor> Mapper::getFloatColorsCoordinatesToDepthFrame()
 		return vector<ofFloatColor>();
 	}
 	UINT depth_size = depth_pixels->size();
-	const UINT16* depth_pix = depth_pixels->getData();
+	const UINT16* depth_pix = depth_pixels->getPixels();
 	if (depth_to_color_points.size() == 0)
 	{
 		depth_to_color_points.resize(depth_pixels->size());
@@ -2062,7 +2065,7 @@ vector<ofFloatColor> Mapper::getFloatColorsCoordinatesToDepthFrame()
 
 	int col_width = color_pixels->getWidth();
 	int col_height = color_pixels->getHeight();
-	const unsigned char* data = color_pixels->getData();
+	const unsigned char* data = color_pixels->getPixels();
 	for (int i = 0; i < depth_size; i++)
 	{
 		ofFloatColor &col = depth_to_float_colors[i];
@@ -2090,7 +2093,7 @@ vector<ofColor> Mapper::getColorsCoordinatesToDepthFrame()
 		return vector<ofColor>();
 	}
 	UINT depth_size = depth_pixels->size();
-	const UINT16* depth_pix = depth_pixels->getData();
+	const UINT16* depth_pix = depth_pixels->getPixels();
 	if (depth_to_color_points.size() == 0)
 	{
 		depth_to_color_points.resize(depth_size);
@@ -2103,7 +2106,7 @@ vector<ofColor> Mapper::getColorsCoordinatesToDepthFrame()
 
 	int col_width = color_pixels->getWidth();
 	int col_height = color_pixels->getHeight();
-	const unsigned char* data = color_pixels->getData();
+	const unsigned char* data = color_pixels->getPixels();
 	for (int i = 0; i < depth_size; i++)
 	{
 		ofColor &col = depth_to_colors[i];
@@ -2131,7 +2134,7 @@ ofPixels Mapper::getColorFrameCoordinatesToDepthFrame()
 		return ofPixels();
 	}
 	UINT depth_size = depth_pixels->size();
-	const UINT16* depth_pix = depth_pixels->getData();
+	const UINT16* depth_pix = depth_pixels->getPixels();
 	if (depth_to_color_points.size() == 0)
 	{
 		depth_to_color_points.resize(depth_size);
@@ -2149,7 +2152,7 @@ ofPixels Mapper::getColorFrameCoordinatesToDepthFrame()
 	{
 		coordinate_color_pixels.allocate(depth_pixels->getWidth(), depth_pixels->getHeight(), OF_PIXELS_RGBA);
 	}
-	const unsigned char* data = color_pixels->getData();
+	const unsigned char* data = color_pixels->getPixels();
 	for (int i = 0; i < depth_size; i++)
 	{
 		int index = (int)depth_to_color_points[i].x + (int)depth_to_color_points[i].y * col_width;

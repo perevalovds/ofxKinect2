@@ -53,7 +53,7 @@ void ofApp::draw(){
 		return;
 	}
     // point cloud
-	vector<ofVec3f>& pointcloud_pos = mapper_.mapDepthToCameraSpace();
+	vector<glm::vec3>& pointcloud_pos = mapper_.mapDepthToCameraSpace();
 	vector<ofFloatColor>& pointcloud_colors = mapper_.getFloatColorsCoordinatesToDepthFrame();
 
 	cam_.begin();
